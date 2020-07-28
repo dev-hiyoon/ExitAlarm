@@ -1,11 +1,8 @@
 package com.hiyoon.exitalarm
 
 import android.Manifest
-import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
@@ -21,10 +18,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // set kakao map
-        val mapView = MapView(this)
-        map_view.addView(mapView)
-
         // check pemission
         requestPermissions(
             arrayOf(
@@ -34,8 +27,17 @@ class MainActivity : AppCompatActivity() {
             ), // 1
             PERMISSION_REQUEST_CODE
         ) // 2
+
+        // set kakao map
+        val mapView = MapView(this)
+        mapView.setDaumMapApiKey("a007daa36d84faa52404a7a30bb5c643")
+        val mapViewContainer = map_view
+        mapViewContainer.addView(mapView)
     }
 
+    /**
+     * permission check
+     */
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
@@ -47,16 +49,19 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 // check grant result
-                grantResults.forEach {
-                    if (it == PackageManager.PERMISSION_GRANTED) {  // 3
+                grantResults.forEachIndexed { idx, element ->
+
+                    // kakao map이 delay를 안주면 조회를 못해온다.. 대박...
+                    Thread.sleep(1000)
+
+                    // permission check
+                    if (element == PackageManager.PERMISSION_GRANTED) {  // 3
                         Toast.makeText(applicationContext, "Permission granted", Toast.LENGTH_LONG)
                     } else {
-                        if (shouldShowRequestPermissionRationale(
-                                Manifest.permission.ACCESS_FINE_LOCATION
-                            )
+                        if (shouldShowRequestPermissionRationale(permissions.get(idx))
                         ) { // 4
                             requestPermissions(
-                                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                                arrayOf(permissions.get(idx)),
                                 PERMISSION_REQUEST_CODE
                             )
                         } else {
